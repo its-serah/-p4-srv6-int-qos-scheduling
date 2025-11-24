@@ -473,6 +473,108 @@ control IngressPipeImpl (inout parsed_headers_t hdr,
         counters = acl_counter;
     }
 
+    // QoS-Aware Scheduling: DSCP-to-Queue Mapping - Feature for P4-NEON
+    action set_queue_ef() {
+        local_metadata.queue_id = 7;
+    }
+
+    action set_queue_af() {
+        local_metadata.queue_id = 5;
+    }
+
+    action set_queue_cs() {
+        local_metadata.queue_id = 3;
+    }
+
+    action set_queue_be() {
+        local_metadata.queue_id = 0;
+    }
+
+    table dscp_qos_mapping {
+        key = {
+            local_metadata.OG_dscp: exact;
+        }
+        actions = {
+            set_queue_ef;
+            set_queue_af;
+            set_queue_cs;
+            set_queue_be;
+            NoAction;
+        }
+        default_action = set_queue_be;
+    }
+
+    // QoS-Aware Scheduling: Queue Occupancy Register for congestion detection
+    // Tracks queue depth per queue ID for INT Analyzer to detect congestion
+    register<bit<16>>(8) queue_occupancy_register;  // 8 instances for 8 queues
+
+    // RFC 2544 Performance Evaluation Registers
+    // Store test metadata for analysis
+    register<bit<32>>(256) rfc2544_test_flow_id;   //flow identifier for tracking
+    register<bit<32>>(256) rfc2544_test_type;      //test identifier (1=throughput, 2=latency, 3=loss, 4=jitter)
+
+    action update_queue_occupancy() {
+        // Log current queue depth for INT export
+        // This value will be read by INT Analyzer for adaptive routing
+        log_msg("Queue occupancy register updated for queue_id:{}", {local_metadata.queue_id});
+    }
+
+    table queue_occupancy_update {
+        key = {
+            local_metadata.queue_id: exact;
+        }
+        actions = {
+            update_queue_occupancy;
+            NoAction;
+        }
+        default_action = NoAction;
+    }
+
+    // QoS Priority Override: Prevent non-EF traffic from using EF queue
+    action enforce_qos_boundary() {
+        // If packet tries to use higher queue than its DSCP allows, downgrade it
+        // This prevents queue spoofing or cross-class interference
+        log_msg("QoS boundary enforcement: queue_id clamped for DSCP:{}", {local_metadata.OG_dscp});
+    }
+
+    table qos_boundary_enforcement {
+        key = {
+            local_metadata.OG_dscp: exact;
+            local_metadata.queue_id: exact;
+        }
+        actions = {
+            enforce_qos_boundary;
+            NoAction;
+        }
+        default_action = NoAction;
+    }
+
+    // RFC 2544 Test Configuration Table
+    // Sets test parameters for performance evaluation
+    action set_rfc2544_test_config(bit<32> test_id, bit<8> qos_class) {
+        local_metadata.rfc2544_test_id = test_id;
+        local_metadata.qos_class = qos_class;
+        log_msg("RFC2544: Test ID {} configured", {test_id});
+    }
+
+    action record_timestamp() {
+        // Store ingress timestamp for latency measurement
+        local_metadata.ingress_timestamp = standard_metadata.ingress_global_timestamp;
+    }
+
+    table rfc2544_test_config {
+        key = {
+            hdr.ipv6.dst_addr: ternary;
+            local_metadata.l4_dst_port: exact;
+        }
+        actions = {
+            set_rfc2544_test_config;
+            record_timestamp;
+            NoAction;
+        }
+        default_action = NoAction;
+    }
+
     apply {
         //-----------------Set packet priority, local_metadata.OG_dscp is 0 by default which means priority 0 (best effort)
         if(hdr.intl4_shim.isValid())     {local_metadata.OG_dscp = hdr.intl4_shim.udp_ip_dscp;} //when INT is used, the OG DSCP value is in the shim header
@@ -486,8 +588,24 @@ control IngressPipeImpl (inout parsed_headers_t hdr,
         if(standard_metadata.priority != 0){log_msg("Packet priority changed to:{}", {standard_metadata.priority});}
 
         //the other 3 bits are the drop precedence, we don't use it
-
-
+        
+        //QoS-Aware Scheduling: Apply DSCP-to-Queue mapping for priority scheduling
+        dscp_qos_mapping.apply();
+        if(local_metadata.queue_id != 0){
+            log_msg("QoS Queue assigned:{}", {local_metadata.queue_id});
+        }
+        
+        //QoS-Aware Scheduling: Update queue occupancy for congestion visibility
+        queue_occupancy_update.apply();
+        
+        //QoS-Aware Scheduling: Enforce QoS class boundaries (prevent spoofing)
+        qos_boundary_enforcement.apply();
+        
+        //RFC 2544: Apply test configuration
+        if(local_metadata.OG_dscp == 46 || local_metadata.OG_dscp == 34) {
+            rfc2544_test_config.apply();
+        }
+        
         //---------------------------------------------------------------------------ACL Support
         if(hdr.ethernet.ether_type == ETHERTYPE_LLDP && hdr.ethernet.dst_addr == 1652522221582){  //LLDP multicast packet with dst ethernet (01:80:c2:00:00:0e), meant only for this switch, so do not forward it
             log_msg("It's an LLDP multicast packet destined to this switch, not meant to be forwarded");

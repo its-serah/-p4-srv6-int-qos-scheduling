@@ -215,10 +215,18 @@ struct local_metadata_t {
 
     bit<6> OG_dscp;                             //0 by default which means Best Effort (0 at Precedence Values)
     bool recirculated_srv6_flag;                //Used to detect a packet that recirculated to remove Headers used in SRv6, and already did ingress
+    bit<8> queue_id;                            //QoS queue ID assigned by DSCP-based scheduling (0=BE, 3=CS, 5=AF, 7=EF)
+
+    // RFC 2544 Performance Evaluation Metrics
+    bit<48> ingress_timestamp;                  //Ingress timestamp for latency calculation
+    bit<16> packet_sequence;                    //Sequence number for jitter measurement
+    bit<32> flow_id;                            //Flow identifier for tracking
+    bit<32> rfc2544_test_id;                    //Test identifier (1=throughput, 2=latency, 3=loss, 4=jitter)
+    bit<8> qos_class;                          //QoS class (0=BE, 1=CS, 2=AF, 3=EF)
 
     int_metadata_t int_meta;                    //used by INT
     preserving_metadata_t perserv_meta;         //used by INT
-    preserving_metadata_CPU_t perserv_CPU_meta; //to migrate from clone3() to clone_preserving() in the clone_to_CPU scenario
+    preserving_metadata_CPU_t perserv_CPU_meta; //to migrate from clone3() to clone_preserving() in the clone_to_cpu scenario
 }
 
 

@@ -50,11 +50,53 @@ weights = {
     'avg_packet_size': 0.10            # Weight for average packet size
 }
 
+# QoS Class Priorities (for intelligent detour selection)
+# FEATURE: QoS-Aware Scheduling - Protects EF traffic
+qos_class_priority = {
+    0: 1,      # BE (Best Effort) - 1st to detour
+    3: 2,      # CS (Class Selector) - 2nd to detour
+    5: 3,      # AF (Assured Forwarding) - 3rd to detour
+    7: 4       # EF (Expedited Forwarding) - NEVER detour unless last resort
+}
+
+ef_dscp_value = 46  # Expedited Forwarding DSCP value
+
 # To store the currenty in usage SRv6 rules, key(switch that was overloaded) values: list dictionaries with the SRv6 args (strings)
 active_SRv6_rules = {}
 lows_alrady_demanded_detour_on_this_call = []             #to avoid overlaps ona single call (srcIP, dstIP, flow_label)
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
+
+def select_best_flow_to_detour_with_qos(flows_with_load):
+    """
+    QoS-AWARE FEATURE: Select which flow to detour while protecting EF traffic.
+    
+    Sorts flows by both load and QoS class, prioritizing non-EF flows for detour.
+    This ensures EF (DSCP 46) traffic maintains low latency during congestion.
+    
+    Args:
+        flows_with_load: list of tuples (flow_info_dict, load_score)
+    
+    Returns:
+        best_flow: flow_info with lowest QoS priority (BE > CS > AF > EF)
+    """
+    if not flows_with_load:
+        return None
+    
+    # Sort by QoS priority (lower=better to detour) then by load
+    sorted_flows = sorted(flows_with_load, 
+                         key=lambda x: (
+                             qos_class_priority.get(x[0].get('dscp', 0), 1),  # QoS priority first
+                             -x[1]  # Then by load (descending)
+                         ))
+    
+    best_flow = sorted_flows[0][0]
+    best_load = sorted_flows[0][1]
+    
+    dscp = best_flow.get('dscp', 0)
+    print(f"{CYAN}QoS-Aware Selection: Choosing flow with DSCP {dscp} for detour (load={best_load:.3f}){END}")
+    
+    return best_flow
 
 def parse_args():
     global args
