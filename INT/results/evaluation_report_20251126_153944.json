@@ -1,0 +1,50 @@
+{
+  "timestamp": "2025-11-26T15:39:44.080994",
+  "evaluation": "Adaptive Fault-Tolerant P4-NEON",
+  "scenarios": {
+    "High-Load": {
+      "scenario": "high_load",
+      "start_time": "2025-11-26T13:37:10.681942",
+      "end_time": "2025-11-26T13:38:10.693953",
+      "duration_sec": 60.012011,
+      "latency_avg_ms": 18.173287898699442,
+      "latency_max_ms": 90.0,
+      "latency_p95_ms": 44.0,
+      "throughput_pps": 9,
+      "queue_avg_pkt": 0,
+      "queue_max_pkt": 0,
+      "packet_loss_ratio": 0.0
+    },
+    "Link-Failure": {
+      "scenario": "link_failure",
+      "start_time": "2025-11-26T13:38:10.701319",
+      "end_time": "2025-11-26T13:39:12.905322",
+      "duration_sec": 62.204003,
+      "latency_avg_ms": 18.173287898699442,
+      "latency_max_ms": 90.0,
+      "latency_p95_ms": 44.0,
+      "throughput_pps": 9,
+      "queue_avg_pkt": 0,
+      "queue_max_pkt": 0,
+      "packet_loss_ratio": 0.0,
+      "recovery_time_ms": 7202016,
+      "recovery_detected": true,
+      "rto_status": "FAIL"
+    },
+    "Burst-Congestion": {
+      "scenario": "burst",
+      "start_time": "2025-11-26T13:39:12.911184",
+      "end_time": "2025-11-26T13:39:44.073273",
+      "duration_sec": 31.162089,
+      "latency_avg_ms": 18.173287898699442,
+      "latency_max_ms": 90.0,
+      "latency_p95_ms": 44.0,
+      "throughput_pps": 19,
+      "queue_avg_pkt": 0,
+      "queue_max_pkt": 0,
+      "packet_loss_ratio": 0.0,
+      "eat_trigger_latency_ms": 150,
+      "eat_detected": false
+    }
+  }
+}
