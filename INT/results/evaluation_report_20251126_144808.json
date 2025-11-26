@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-11-26T14:48:08.336261",
+  "evaluation": "Adaptive Fault-Tolerant P4-NEON",
+  "scenarios": {
+    "High-Load": {
+      "scenario": "high_load",
+      "start_time": "2025-11-26T12:45:34.862499",
+      "end_time": "2025-11-26T12:46:34.915187",
+      "duration_sec": 60.052688,
+      "throughput_pps": 0,
+      "queue_avg_pkt": 0,
+      "queue_max_pkt": 0,
+      "packet_loss_ratio": 0.0
+    },
+    "Link-Failure": {
+      "scenario": "link_failure",
+      "start_time": "2025-11-26T12:46:34.926154",
+      "end_time": "2025-11-26T12:47:37.130420",
+      "duration_sec": 62.204266,
+      "throughput_pps": 0,
+      "queue_avg_pkt": 0,
+      "queue_max_pkt": 0,
+      "packet_loss_ratio": 0.0,
+      "recovery_time_ms": 7202027,
+      "recovery_detected": true,
+      "rto_status": "FAIL"
+    },
+    "Burst-Congestion": {
+      "scenario": "burst",
+      "start_time": "2025-11-26T12:47:37.136649",
+      "end_time": "2025-11-26T12:48:08.330882",
+      "duration_sec": 31.194233,
+      "throughput_pps": 0,
+      "queue_avg_pkt": 0,
+      "queue_max_pkt": 0,
+      "packet_loss_ratio": 0.0,
+      "eat_trigger_latency_ms": 150,
+      "eat_detected": false
+    }
+  }
+}

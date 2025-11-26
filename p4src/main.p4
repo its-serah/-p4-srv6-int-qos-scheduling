@@ -22,6 +22,9 @@
 #include "include/checksum.p4"
 #include "include/Ingress.p4"
 #include "include/Egress.p4"
+#include "include/eat_trigger.p4"
+#include "include/qos_scheduling.p4"
+#include "include/frr_failover.p4"
 
 
 V1Switch(

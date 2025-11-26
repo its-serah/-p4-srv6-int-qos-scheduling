@@ -15,6 +15,8 @@ import org.onosproject.net.flow.FlowRule;
 import org.onosproject.net.flow.FlowRuleService;
 import org.onosproject.net.group.Group;
 import org.onosproject.net.group.GroupService;
+import org.onosproject.net.packet.PacketService;
+import org.onosproject.p4runtime.api.P4RuntimeController;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -34,6 +36,12 @@ import static org.onosproject.srv6_usid.AppConstants.APP_NAME;
 import static org.onosproject.srv6_usid.AppConstants.CLEAN_UP_DELAY;
 import static org.onosproject.srv6_usid.AppConstants.DEFAULT_CLEAN_UP_RETRY_TIMES;
 import static org.onosproject.srv6_usid.common.Utils.sleep;
+
+import org.p4srv6int.EATProcessor;
+import org.p4srv6int.QoSPolicyManager;
+import org.p4srv6int.FRRFailoverListener;
+import org.onosproject.net.link.LinkService;
+import org.onosproject.net.topology.TopologyService;
 
 /**
  * A component which among other things registers the Srv6DeviceConfig to the
@@ -68,6 +76,22 @@ public class MainComponent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private ComponentConfigService compCfgService;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected PacketService packetService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected P4RuntimeController p4RuntimeController;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected LinkService linkService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    protected TopologyService topologyService;
+
+    private EATProcessor eatProcessor;
+    private QoSPolicyManager qosPolicyManager;
+    private FRRFailoverListener frrFailoverListener;
+
     private final ConfigFactory<DeviceId, Srv6DeviceConfig> srv6ConfigFactory =
             new ConfigFactory<DeviceId, Srv6DeviceConfig>(
                     SubjectFactories.DEVICE_SUBJECT_FACTORY, Srv6DeviceConfig.class, Srv6DeviceConfig.CONFIG_KEY) {
@@ -98,11 +122,44 @@ public class MainComponent {
                                       "requestIpv6ND", "true", false);          //Use NDP neighbor to discover hosts
 
         configRegistry.registerConfigFactory(srv6ConfigFactory);
+
+        // Initialize QoS Policy Manager (Contribution 3)
+        qosPolicyManager = new QoSPolicyManager(deviceService, p4RuntimeController);
+        log.info("QoS Policy Manager initialized");
+
+        // Initialize and activate EAT Processor (Contribution 1)
+        eatProcessor = new EATProcessor(packetService, appId);
+        eatProcessor.activate();
+        log.info("EAT Processor activated");
+
+        // Initialize FRR Failover Listener (Contribution 2)
+        frrFailoverListener = new FRRFailoverListener(
+                appId,
+                deviceService,
+                linkService,
+                topologyService,
+                p4RuntimeController,
+                flowRuleService
+        );
+        log.info("FRR Failover Listener initialized");
+
         log.info("Started");
     }
 
     @Deactivate
     protected void deactivate() {
+        // Deactivate EAT Processor
+        if (eatProcessor != null) {
+            eatProcessor.deactivate();
+            log.info("EAT Processor deactivated");
+        }
+
+        // Deactivate FRR Failover Listener
+        if (frrFailoverListener != null) {
+            frrFailoverListener.clearFailures();
+            log.info("FRR Failover Listener deactivated");
+        }
+
         configRegistry.unregisterConfigFactory(srv6ConfigFactory);
 
         cleanUp();
