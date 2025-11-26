@@ -720,7 +720,7 @@ Before using in research/publication:
 
 ---
 
-## 🎯 Execution Results (Real Data from 30 Runs)
+##  Execution Results (Real Data from 30 Runs)
 
 ### Statistical Analysis (30 Complete Evaluations)
 **File**: `INT/results/statistical_report_30runs.json`
