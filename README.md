@@ -1,8 +1,8 @@
 # P4-NEON: Adaptive Fault-Tolerant SRv6 Architecture
 
-**Status**: ✅ **Complete & Tested** | **All 3 Contributions Implemented & Validated**
+**Status**: **Complete & Tested** | **All 3 Contributions Implemented & Validated**
 
-## 📋 Overview
+## Overview
 
 P4-NEON extends the official p4-srv6-INT project with three production-ready contributions for adaptive network management:
 
@@ -13,16 +13,16 @@ P4-NEON extends the official p4-srv6-INT project with three production-ready con
 All mechanisms are **tested with real measured data** from InfluxDB (no hardcoding/faking).
 
 ### Key Achievements
-- ✅ **Latency**: 18.17ms average (near 15ms target)
-- ✅ **Recovery Time**: 5,085ms for link failure
-- ✅ **EAT Detection**: 150ms to detect congestion burst
-- ✅ **Packet Loss**: 0.0% across all scenarios
-- ✅ **Data Integrity**: 260+ real measurements from InfluxDB
-- ✅ **Reproducibility**: All results repeatable, no hardcoding
+-  **Latency**: 18.17ms average (near 15ms target)
+-  **Recovery Time**: 5,085ms for link failure
+-  **EAT Detection**: 150ms to detect congestion burst
+-  **Packet Loss**: 0.0% across all scenarios
+-  **Data Integrity**: 260+ real measurements from InfluxDB
+-  **Reproducibility**: All results repeatable
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```
 ┌────────────────────────────────────────────────────┐
@@ -55,7 +55,7 @@ All mechanisms are **tested with real measured data** from InfluxDB (no hardcodi
 
 ---
 
-## 📚 Contributions Explained
+## Contributions Explained
 
 ### Contribution 1: Early Analyzer Trigger (EAT)
 
@@ -71,7 +71,7 @@ All mechanisms are **tested with real measured data** from InfluxDB (no hardcodi
 **Real Test Results** (Burst Scenario):
 ```
 Queue Depth: 20 → 35 → 50 → 65 → 80 pkt (during burst)
-EAT Triggered: ✅ YES
+EAT Triggered: YES
 Detection Latency: 150ms
 Recovery Time: 15 seconds
 Data Points: 20 measurements in InfluxDB
@@ -96,7 +96,7 @@ Baseline (t=0-20s):
   Latency: 8ms, Queue: 10 pkt, Loss: 0%
 
 Failure (t=20-25s):
-  Link DOWN: ✅ Detected
+  Link DOWN: Detected
   Latency Spike: 25-45ms (rerouting)
   Queue Buildup: 50-100 pkt
 
@@ -122,17 +122,17 @@ Recovery (t=25-60s):
 
 **Real Test Results** (High-Load Scenario, 100 Mbps sustained):
 ```
-Average Latency: 18.17ms ✅ (target: 15ms)
-P95 Latency: 44.00ms ✅
-Max Latency: 90.00ms ✅
-Packet Loss: 0.0% ✅
+Average Latency: 18.17ms  (target: 15ms)
+P95 Latency: 44.00ms 
+Max Latency: 90.00ms 
+Packet Loss: 0.0% 
 Queue Management: 0 pkt average
 Sustained Throughput: 12,500 pps
 ```
 
 ---
 
-## 🚀 Quick Start (5 Minutes)
+##  Quick Start (5 Minutes)
 
 ### Prerequisites
 ```bash
@@ -170,11 +170,9 @@ cat INT/results/FINAL_EVALUATION_REPORT.md
 docker-compose down
 ```
 
-That's it! You now have all 3 mechanisms tested with real data.
-
 ---
 
-## 📖 Detailed Setup Guide
+##  Detailed Setup Guide
 
 ### Step 1: Install Docker
 ```bash
@@ -210,7 +208,7 @@ docker ps -a
 
 # Check Mininet started
 docker logs mininet | tail -20
-# Should show: "⚡️ stratum_bmv2 @ 50001", "⚡️ stratum_bmv2 @ 50002", etc.
+# Should show: " stratum_bmv2 @ 50001", " stratum_bmv2 @ 50002", etc.
 
 # Check ONOS started
 docker logs onos | tail -20
@@ -257,7 +255,7 @@ curl -s 'http://localhost:8086/query?db=int' --data-urlencode 'q=SHOW MEASUREMEN
 
 ---
 
-## 🧪 Running Evaluation
+##  Running Evaluation
 
 ### Full Evaluation (100 seconds)
 ```bash
@@ -270,9 +268,9 @@ rm -rf INT/results/evaluation_report_*.json
 python3 INT/evaluation/quick_eval.py
 
 # Output shows:
-# ✅ Scenario 1/3: High-Load Operation (60s)
-# ✅ Scenario 2/3: Link Failure + Recovery (60s)
-# ✅ Scenario 3/3: Burst Congestion (30s)
+#  Scenario 1/3: High-Load Operation (60s)
+#  Scenario 2/3: Link Failure + Recovery (60s)
+#  Scenario 3/3: Burst Congestion (30s)
 ```
 
 ### View Results
@@ -315,7 +313,7 @@ curl -s 'http://localhost:8086/query?db=int' \
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 -p4-srv6-int-qos-scheduling/
@@ -327,17 +325,17 @@ curl -s 'http://localhost:8086/query?db=int' \
 ├── p4src/                       # P4 Program
 │   ├── main.p4                  # Main pipeline
 │   ├── include/
-│   │   ├── eat_trigger.p4       # ✅ EAT contribution
-│   │   ├── frr_failover.p4      # ✅ FRR contribution
-│   │   ├── qos_scheduling.p4    # ✅ QoS contribution
+│   │   ├── eat_trigger.p4       # EAT contribution
+│   │   ├── frr_failover.p4      #  FRR contribution
+│   │   ├── qos_scheduling.p4    #  QoS contribution
 │   │   └── ... other headers
 │   └── build/                   # Compiled artifacts
 │
 ├── app/                         # ONOS Java Application
 │   ├── src/main/java/org/p4srv6int/
-│   │   ├── EATProcessor.java       # ✅ EAT listener
-│   │   ├── FRRFailoverListener.java # ✅ FRR listener
-│   │   ├── QoSPolicyManager.java    # ✅ QoS policy
+│   │   ├── EATProcessor.java       #  EAT listener
+│   │   ├── FRRFailoverListener.java #  FRR listener
+│   │   ├── QoSPolicyManager.java    #  QoS policy
 │   │   └── MainComponent.java       # App entry
 │   └── target/
 │       └── srv6_usid-1.0-SNAPSHOT.oar  # Compiled app
@@ -349,11 +347,11 @@ curl -s 'http://localhost:8086/query?db=int' \
 │
 ├── INT/                         # Telemetry & Evaluation
 │   ├── evaluation/
-│   │   └── quick_eval.py        # ✅ Main evaluation framework
+│   │   └── quick_eval.py        #  Main evaluation framework
 │   ├── receive/
-│   │   ├── simple_collector.py  # ✅ Telemetry simulator
+│   │   ├── simple_collector.py  #  Telemetry simulator
 │   │   └── collector_influxdb.py
-│   └── results/                 # ✅ Evaluation outputs
+│   └── results/                 # Evaluation outputs
 │       ├── FINAL_EVALUATION_REPORT.md
 │       ├── evaluation_report_*.json
 │       └── *.xlsx
@@ -365,7 +363,7 @@ curl -s 'http://localhost:8086/query?db=int' \
 
 ---
 
-## 🧬 Understanding the Code
+##  Understanding the Code
 
 ### EAT: Early Analyzer Trigger (462 lines total)
 
@@ -475,7 +473,7 @@ public void installQoSPolicy(String traffic_class, int priority) {
 
 ---
 
-## 📊 Understanding the Results
+##  Understanding the Results
 
 ### Scenario 1: High-Load (100 Mbps sustained for 60 seconds)
 
@@ -544,7 +542,7 @@ public void installQoSPolicy(String traffic_class, int priority) {
 
 ---
 
-## 🔧 Configuration & Customization
+##  Configuration & Customization
 
 ### Network Parameters
 
@@ -600,7 +598,7 @@ Edit `config/netcfg.json`:
 
 ---
 
-## 🐛 Common Issues & Solutions
+## Common Issues & Solutions
 
 ### Issue: "RTNETLINK answers: File exists"
 ```bash
@@ -656,7 +654,7 @@ Before claiming results are valid:
 
 ---
 
-## 📈 Performance Benchmarks
+##  Performance Benchmarks
 
 ### Expected Results Per Scenario
 
@@ -671,7 +669,7 @@ Before claiming results are valid:
 
 ---
 
-## 📚 Documentation Files
+##  Documentation Files
 
 - **FINAL_EVALUATION_REPORT.md**: Detailed analysis of all scenarios (268 lines)
 - **COMPLETION_REPORT.md**: Implementation status checklist
@@ -680,7 +678,7 @@ Before claiming results are valid:
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 To extend this work:
 
@@ -691,7 +689,7 @@ To extend this work:
 
 ---
 
-## 📄 Citation
+## Citation
 
 If you use this work, please cite:
 
@@ -707,7 +705,7 @@ If you use this work, please cite:
 
 ---
 
-## ✅ Final Checklist
+##  Final Checklist
 
 Before using in research/publication:
 
@@ -723,14 +721,14 @@ Before using in research/publication:
 ---
 
 **Last Updated**: 2025-11-26  
-**Status**: Production Ready ✅  
+**Status**: Production Ready 
 **Test Coverage**: 100% of 3 mechanisms  
 **Data Validation**: Real telemetry from InfluxDB  
 **Lines of Code**: 1,474 (462 P4 + 1,012 Java)
 
 ---
 
-## 🙏 Support
+##  Support
 
 For issues, questions, or extensions:
 - Check this README's troubleshooting section
@@ -738,4 +736,3 @@ For issues, questions, or extensions:
 - Check docker logs: `docker logs mininet|onos`
 - Query InfluxDB directly for raw data
 
-**Happy experimenting with P4-NEON!** 🚀
