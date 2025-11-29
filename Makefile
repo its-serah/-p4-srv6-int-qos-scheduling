@@ -33,17 +33,17 @@ _docker_pull_all:
 deps: _docker_pull_all
 
 mn-host:
-	docker compose exec mininet m $@
+	docker-compose exec mininet m $@
 
 start:
 	$(info *** Starting ONOS and Mininet... )
 	@mkdir -p tmp/onos
-	docker compose up -d
+	docker-compose up -d
 
 
 stop:
 	$(info *** Stopping ONOS...)
-	docker compose down
+	docker-compose down
 
 restart: reset start
 

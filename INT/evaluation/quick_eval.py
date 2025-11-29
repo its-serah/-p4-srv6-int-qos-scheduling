@@ -16,9 +16,9 @@ class QuickEvaluation:
     def __init__(self):
         try:
             self.client = InfluxDBClient(host='localhost', port=8086, database='int')
-            print("✅ Connected to InfluxDB")
+            print("Connected to InfluxDB")
         except Exception as e:
-            print(f"❌ InfluxDB connection failed: {e}")
+            print(f"InfluxDB connection failed: {e}")
             self.client = None
         
         self.results = {}
@@ -63,7 +63,7 @@ class QuickEvaluation:
         metrics = self.collect_metrics(start_time, end_time, "high_load")
         self.results["High-Load"] = metrics
         
-        print(f"  ✅ Scenario 1 complete: {metrics}")
+        print(f"  Scenario 1 complete: {metrics}")
     
     def scenario_link_failure(self):
         print("  - Running 60s test with link failure at t=20s...")
@@ -132,7 +132,7 @@ class QuickEvaluation:
         metrics["rto_status"] = "PASS" if recovery_time_ms < 500 else "FAIL"
         self.results["Link-Failure"] = metrics
         
-        print(f"  ✅ Scenario 2 complete: RTO={recovery_time_ms}ms (MEASURED) [{metrics['rto_status']}]")
+        print(f" Scenario 2 complete: RTO={recovery_time_ms}ms (MEASURED) [{metrics['rto_status']}]")
     
     def scenario_burst(self):
         print("  - Running 30s test with 300 Mbps burst at t=10s...")
@@ -206,7 +206,7 @@ class QuickEvaluation:
         metrics["eat_detected"] = eat_detected
         self.results["Burst-Congestion"] = metrics
         
-        print(f"  ✅ Scenario 3 complete: EAT Trigger Latency={eat_latency_ms}ms (MEASURED)")
+        print(f" Scenario 3 complete: EAT Trigger Latency={eat_latency_ms}ms (MEASURED)")
     
     def collect_metrics(self, start_time, end_time, scenario):
         """Collect metrics from InfluxDB"""
@@ -239,7 +239,7 @@ class QuickEvaluation:
                 metrics["latency_avg_ms"] = float(point.get("latency_avg_ms", 0)) or 0
                 metrics["latency_max_ms"] = float(point.get("latency_max_ms", 0)) or 0
                 metrics["latency_p95_ms"] = float(point.get("latency_p95_ms", 0)) or 0
-                print(f"    ✅ Real metrics from InfluxDB: avg={metrics['latency_avg_ms']:.1f}ms, p95={metrics['latency_p95_ms']:.1f}ms")
+                print(f"     Metrics from InfluxDB: avg={metrics['latency_avg_ms']:.1f}ms, p95={metrics['latency_p95_ms']:.1f}ms")
             else:
                 # Fallback: query all available data
                 query = "SELECT * FROM switch_stats LIMIT 1"
@@ -250,9 +250,9 @@ class QuickEvaluation:
                     metrics["latency_avg_ms"] = float(point.get("latency", 0)) or 0
                     metrics["latency_max_ms"] = metrics["latency_avg_ms"]
                     metrics["latency_p95_ms"] = metrics["latency_avg_ms"]
-                    print(f"    ✅ Using available data: latency={metrics['latency_avg_ms']:.1f}ms")
+                    print(f"     Using available data: latency={metrics['latency_avg_ms']:.1f}ms")
                 else:
-                    print(f"    ⚠️ No data found in InfluxDB, returning zeros")
+                    print(f"    No data found in InfluxDB, returning zeros")
         except Exception as e:
             print(f"    Warning: Could not query InfluxDB: {e}")
         
@@ -307,7 +307,7 @@ class QuickEvaluation:
                 "evaluation": "Adaptive Fault-Tolerant P4-NEON",
                 "scenarios": self.results
             }, f, indent=2)
-        print(f"✅ JSON Report: {json_file}")
+        print(f" JSON Report: {json_file}")
         
         # Excel Report
         try:
@@ -317,10 +317,10 @@ class QuickEvaluation:
                 for scenario_name, metrics in self.results.items():
                     df = pd.DataFrame([metrics])
                     df.to_excel(writer, sheet_name=scenario_name[:31], index=False)
-            print(f"✅ Excel Report: {excel_file}")
+            print(f" Excel Report: {excel_file}")
         except ImportError:
-            print("⚠️  pandas not installed - Excel report skipped")
-        
+            print(" pandas not installed - Excel report skipped")
+       
         # Summary
         print("\n" + "="*80)
         print("EVALUATION SUMMARY")
@@ -336,7 +336,7 @@ class QuickEvaluation:
             if "eat_trigger_latency_ms" in metrics:
                 print(f"  EAT Latency: {metrics['eat_trigger_latency_ms']}ms")
         
-        print("\n✅ EVALUATION COMPLETE")
+        print("\n EVALUATION COMPLETE")
 
 if __name__ == '__main__':
     eval_framework = QuickEvaluation()

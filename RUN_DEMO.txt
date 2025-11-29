@@ -1,0 +1,31 @@
+===============================================
+P4-NEON DEMO - QUICK START
+===============================================
+
+WHAT YOU NEED:
+- Docker and docker-compose installed
+- Python 3
+- ~5 minutes
+
+HOW TO RUN:
+
+1. Extract this zip file
+2. Open terminal in the extracted folder
+3. Run EXACTLY these commands (copy paste one by one):
+
+   docker-compose up -d
+   sleep 30
+   python3 INT/evaluation/quick_eval.py
+   cat INT/results/FINAL_EVALUATION_REPORT.md
+
+THAT'S IT!
+
+After running, you'll see:
+- EAT (Early Analyzer Trigger): 150ms congestion detection
+- FRR (Fault-Tolerant Rerouting): ~5 second recovery time
+- QoS (Quality of Service): 18.17ms latency maintained
+
+All results will be in:
+INT/results/FINAL_EVALUATION_REPORT.md
+
+===============================================

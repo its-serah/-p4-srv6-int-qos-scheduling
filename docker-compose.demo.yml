@@ -1,0 +1,49 @@
+version: '3'
+services:
+  mininet:
+    image: davidcc73/stratum_bmv2_x11_scapy_pip3:latest
+    container_name: mininet
+    volumes:
+      - ./mininet:/mininet
+      - ./p4src:/p4src
+      - ./config:/config
+    environment:
+      - DISPLAY=${DISPLAY}
+    networks:
+      - p4net
+    stdin_open: true
+    tty: true
+
+  onos:
+    build:
+      context: .
+      dockerfile: Dockerfile.onos.demo
+    container_name: onos
+    ports:
+      - "8181:8181"
+      - "6653:6653"
+      - "6640:6640"
+      - "8101:8101"
+      - "9876:9876"
+    environment:
+      - ONOS_APPS=drivers,openflow,proxyarp,mobility
+    networks:
+      - p4net
+    depends_on:
+      - mininet
+
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=int
+    volumes:
+      - ./influxdb_data:/var/lib/influxdb
+    networks:
+      - p4net
+
+networks:
+  p4net:
+    driver: bridge

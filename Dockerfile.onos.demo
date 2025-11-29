@@ -1,0 +1,11 @@
+FROM onosproject/onos:2.5.9
+
+# Copy pre-compiled app into ONOS apps directory
+COPY app/target/srv6_usid-1.0-SNAPSHOT.oar /root/onos/apps/srv6_usid-1.0-SNAPSHOT.oar
+
+# Make sure app is installed on startup
+RUN chmod 644 /root/onos/apps/srv6_usid-1.0-SNAPSHOT.oar
+
+EXPOSE 6653 6640 8101 8181 9876
+
+CMD ["./bin/onos-service"]
